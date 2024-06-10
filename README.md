@@ -1,3 +1,7 @@
+# Link to the SUD corpora
+
+https://surfacesyntacticud.github.io/data/
+
 # Intervener-type-minimization
 
 (a) The woman who works at the store kicked the basket.
