@@ -7,10 +7,9 @@ from operator import itemgetter
 from Measures import  Compute_measures
 from Measures_rand import Compute_measures_rand
 import random
-import treegen as gen
 from baseline_conditions_DL_matched_RLAs import Random_base
 
-directory = "./UD"                   # directory containing the UD scheme tree files in CONLLU format
+directory = "./UD1"                   # directory containing the UD scheme tree files in CONLLU format
 ud_files = []
 for root, dirs, files in os.walk(directory):
     for file in files:
@@ -19,7 +18,7 @@ for root, dirs, files in os.walk(directory):
             ud_files.append(fullpath)            # creates a list of path of all files (file of each language) from the directory
 
 for i in ud_files:                                       # reads file of each language one by one
-    lang = str(i).replace("./UD", "")
+    lang = str(i).replace("./UD1", "")
     lang=lang.replace("-ud-train.conllu", "")            # lang variable stores the language code
     lang=lang.replace("-ud-test.conllu", "")
     data_file = open(str(i),'r',encoding='utf-8').read()
@@ -92,7 +91,7 @@ for i in ud_files:                                       # reads file of each la
                             HDD_rand=find.hdd(edgex)
                             # dep_heads_of_intervener_types_rand=find.heads_of_intervener_types(edgex)
                             
-                            results1 = open('Random_structures.csv','a')
+                            results1 = open('DL-matched-RLAs-UD1.csv','a')
                             results1.write(str(lang)+"\t"+"random"+"\t"+str(sent_id)+"\t"+str(n)+"\t"+str(max_arity_rand)+"\t"+str(avg_arity_rand)+"\t"+str(projection_degree_rand)+"\t"+str(gap_degree_rand)+"\t"+str(k_illnest_rand)+"\t"+str(edgex)+"\t"+str(direction_rand)+"\t"+str(dep_distance_rand)+"\t"+str(dep_depth_rand)+"\t"+str(projectivity_rand)+"\t"+str(edge_degree_rand)+"\t"+str(endpoint_cross_rand)+"\t"+str(HDD_rand)+"\t"+str(relation_pospeech_rand)+"\t"+str(dep_heads_of_intervener_types_rand)+"\n")
                             results1.close()
                     #Computes the measures for the real tree
@@ -117,8 +116,8 @@ for i in ud_files:                                       # reads file of each la
                             endpoint_cross_real=get.endpoint_crossing(edgey)    # no. of heads which immediately dominates the nodes which causes non-projectivity in an edge span
                             HDD_real=get.hdd(edgey)
                             dep_heads_of_intervener_types_real=find.heads_of_intervener_types(edgey)
-                            dep_relation_pos_real=get.relation_pos(edgey)
-                            results2 = open('Random_structures.csv','a')
+                            dep_relation_pos_real=find.relation_pos(edgey)
+                            results2 = open('DL-matched-RLAs-UD1.csv','a')
                             results2.write(str(lang)+"\t"+"real"+"\t"+str(sent_id)+"\t"+str(n)+"\t"+str(max_arity_real)+"\t"+str(avg_arity_real)+"\t"+str(projection_degree_real)+"\t"+str(gap_degree_real)+"\t"+str(k_illnest_real)+"\t"+str(edgey)+"\t"+str(direction_real)+"\t"+str(dep_distance_real)+"\t"+str(dep_depth_real)+"\t"+str(projectivity_real)+"\t"+str(edge_degree_real)+"\t"+str(endpoint_cross_real)+"\t"+str(HDD_real)+"\t"+str(dep_relation_pos_real)+"\t"+str(dep_heads_of_intervener_types_real)+"\n")
                             results2.close()
                     print("\n-----------------\n"+str(tree.edges))

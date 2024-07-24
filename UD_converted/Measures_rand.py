@@ -4,18 +4,18 @@ import networkx as nx
 
 class Compute_measures_rand(object):
     def __init__(self, tree, root):
-        self.tree=tree                          # tree encodes the nodes and edges content in dictionary format. It uses directed graph (DiGraph) feature of networkX package. For example, nodes are encoded like this - tree.nodes={1:{form:'this',POS:'PRN'},2:{...}}   
-        self.root=root                             # ROOT is an abstract node in the tree and is encoded as empty and with name=0    
-        
-    def dependency_direction(self, edge):       # Computes the direction of an edge (i.e., dependency) according to relative position of dependent and head  
+        self.tree=tree                          # tree encodes the nodes and edges content in dictionary format. It uses directed graph (DiGraph) feature of networkX package. For example, nodes are encoded like this - tree.nodes={1:{form:'this',POS:'PRN'},2:{...}}
+        self.root=root                             # ROOT is an abstract node in the tree and is encoded as empty and with name=0
+
+    def dependency_direction(self, edge):       # Computes the direction of an edge (i.e., dependency) according to relative position of dependent and head
         direction=''
         if edge[0]>edge[1]:                     # edge is a list data type in the format [head,dependent]
             direction='RL'
         else:
             direction='LR'
 
-        return direction                        # return direction as 'LR' (Left-to-Right) or RL ('Right-to-Left')  
-            
+        return direction                        # return direction as 'LR' (Left-to-Right) or RL ('Right-to-Left')
+
 
 
     def relation_pos(self, edge):
@@ -30,7 +30,7 @@ class Compute_measures_rand(object):
             heads_of_nodex = []
             types = []
             rel = []
-            
+
             if edge[0] > edge[1]:
                 for nodex in nx.descendants(self.tree, self.root):
                     if edge[1] < nodex < edge[0]:
@@ -41,14 +41,14 @@ class Compute_measures_rand(object):
                 for nodex in nx.descendants(self.tree, self.root):
                     if edge[0] < nodex < edge[1]:
                         nodex_between.append(nodex)
-            
+
             for nodex in nodex_between:
                 for in_edge in self.tree.in_edges(nodex):
                     head_node = in_edge[0]
                     head_pos = self.tree.nodes[head_node].get('upostag')
                     pos_nodex = self.tree.nodes[nodex].get('upostag')
                     if self.tree.has_edge(head_node, nodex):
-                        int_rel = self.tree[head_node][nodex].get('drel')
+                        int_rel = self.tree.nodes[nodex].get('deprel')
                         if pos_nodex is not None:
                             types.append(pos_nodex)
                             rel.append(int_rel)
@@ -58,22 +58,22 @@ class Compute_measures_rand(object):
 
 
 
-    def dependency_distance(self, edge):        # Computes the dependency length i.e., no. of nodes between head and its dependent 
+    def dependency_distance(self, edge):        # Computes the dependency length i.e., no. of nodes between head and its dependent
         dd=0
-        if edge[0]>edge[1]:                      
-            for nodex in nx.descendants(self.tree, self.root):        
-                if edge[1]<nodex<edge[0]:                             # all the nodes that lies linearly between dependent and head   
+        if edge[0]>edge[1]:
+            for nodex in nx.descendants(self.tree, self.root):
+                if edge[1]<nodex<edge[0]:                             # all the nodes that lies linearly between dependent and head
                     dd+=1
         else:
             for nodex in nx.descendants(self.tree, self.root):
                 if edge[0]<nodex<edge[1]:
                     dd+=1
         return dd                              # returns the dependency distance of the edge
-        
-    def dependency_depth(self, edge):        # Computes the dependency length i.e., no. of nodes between head and its dependent 
+
+    def dependency_depth(self, edge):        # Computes the dependency length i.e., no. of nodes between head and its dependent
         hd=1
-        if edge[0]>edge[1]:                      
-            for nodex in nx.descendants(self.tree, self.root):        
+        if edge[0]>edge[1]:
+            for nodex in nx.descendants(self.tree, self.root):
                 if edge[1]<nodex<edge[0]:                             # all the nodes that lies linearly between dependent and head
                     if nx.descendants(self.tree, nodex):
                         hd+=1
@@ -83,14 +83,14 @@ class Compute_measures_rand(object):
                     if nx.descendants(self.tree, nodex):
                         hd+=1
         return hd                              # returns the dependency distance of the edge
-    
+
     def is_projective(self, edge):             # Checks if an edge is projective or not and returns a boolean value.
         projective=True
-        edge_span=[]                 
-        if edge[0]>edge[1]:                                      
-            for nodex in nx.descendants(self.tree, self.root):   
+        edge_span=[]
+        if edge[0]>edge[1]:
+            for nodex in nx.descendants(self.tree, self.root):
                 if edge[1]<nodex<edge[0]:
-                    edge_span.append(nodex)                       
+                    edge_span.append(nodex)
         else:
             for nodex in nx.descendants(self.tree, self.root):
                 if edge[0]<nodex<edge[1]:
@@ -105,13 +105,13 @@ class Compute_measures_rand(object):
             projective=False
         return projective                                                       # Returns TRUE is edge is projective otherwise FALSE
 
-    def edge_degree(self, edge):                                 # Computes the number of edges causing non-projectivity              
+    def edge_degree(self, edge):                                 # Computes the number of edges causing non-projectivity
         eD=0
-        edge_span=[]                 
-        if edge[0]>edge[1]:                                      
-            for nodex in nx.descendants(self.tree, self.root):   
+        edge_span=[]
+        if edge[0]>edge[1]:
+            for nodex in nx.descendants(self.tree, self.root):
                 if edge[1]<nodex<edge[0]:
-                    edge_span.append(nodex)                       
+                    edge_span.append(nodex)
         else:
             for nodex in nx.descendants(self.tree, self.root):
                 if edge[0]<nodex<edge[1]:
@@ -120,26 +120,26 @@ class Compute_measures_rand(object):
         for nodeI in edge_span:
             if not self.tree.nodes[nodeI]['head'] in edge_span:         # if the head of any intervening node exists outside the span of the edge
                 if not nodeI in nx.descendants(self.tree, edge[0]):
-                    eD += 1    
-        return eD                                                        
+                    eD += 1
+        return eD
 
-    def gap_degree(self, node):                     # Computes the gaps in the projection chain containing maximum number of gaps 
+    def gap_degree(self, node):                     # Computes the gaps in the projection chain containing maximum number of gaps
         chains_gapD=[]
         terminals=[]
         for nodex in self.tree.nodes:
             if self.tree.out_degree(nodex)==0:
                 terminals.append(nodex)
 
-        for nodeT in terminals:                       
+        for nodeT in terminals:
             gapD=0
-            if nx.has_path(self.tree, node, nodeT):     
-                pathx=nx.all_simple_paths(self.tree, node, nodeT, cutoff=None)     # Projection chain from ROOT to each Terminal node is encoded as list of nodes in the chain   
+            if nx.has_path(self.tree, node, nodeT):
+                pathx=nx.all_simple_paths(self.tree, node, nodeT, cutoff=None)     # Projection chain from ROOT to each Terminal node is encoded as list of nodes in the chain
                 for item in pathx:
                     pathy=item
                     for nodeP in item:
                         if not nodeP==self.root:
                             if not self.tree.nodes[nodeP]['head']==self.root:
-                                if not self.is_projective([self.tree.nodes[nodeP]['head'],nodeP]):   # If any edge in a projection chain is non-projective 
+                                if not self.is_projective([self.tree.nodes[nodeP]['head'],nodeP]):   # If any edge in a projection chain is non-projective
                                     gapD=gapD+1                                                      # No. of non-projective edges in a projection chain = No. of gap degree
             chains_gapD.append(gapD)
 
@@ -153,12 +153,12 @@ class Compute_measures_rand(object):
                 if not self.tree.nodes[nodex]['head']==self.root:
                     if not self.is_projective([self.tree.nodes[nodex]['head'],nodex]):
                         cross_dep=nodex
-                        cross_head=self.tree.nodes[cross_dep]['head']   
-                        edge_span=[]                 
-                        if cross_head>cross_dep:                                      
-                            for nodev in nx.descendants(self.tree, self.root):   
+                        cross_head=self.tree.nodes[cross_dep]['head']
+                        edge_span=[]
+                        if cross_head>cross_dep:
+                            for nodev in nx.descendants(self.tree, self.root):
                                 if cross_dep<nodev<cross_head:
-                                    edge_span.append(nodev)                       
+                                    edge_span.append(nodev)
                         else:
                             for nodev in nx.descendants(self.tree, self.root):
                                 if cross_head<nodev<cross_dep:
@@ -184,7 +184,7 @@ class Compute_measures_rand(object):
                                 pathx=nx.all_simple_paths(self.tree, node, nodex, cutoff=None)
                                 for item in pathx:
                                     all_gapped_chains.append(item)                             # It has all the projection chains from root to dependents of crossing arcs
-                                                                                          # i.e., all possible chains which can interleave with other                  
+                                                                                          # i.e., all possible chains which can interleave with other
             chains_with_gaps=[]
             for chainx in all_gapped_chains:
                 flag=0
@@ -193,7 +193,7 @@ class Compute_measures_rand(object):
                         flag=flag+1
                 if flag==0:
                     chains_with_gaps.append(chainx)
-                    
+
             for pathz in chains_with_gaps:
                 #print(pathz)
                 num_interL=0                                                        # Variable for number of chains that can interleave with a single chain in question
@@ -224,7 +224,7 @@ class Compute_measures_rand(object):
                 gapd_histogram[gapD]=gapd_histogram[gapD]+1
             else:
                 gapd_histogram[gapD]=1
-        return gapd_histogram 
+        return gapd_histogram
 
     def projection_degree(self, node):
         size_chains=[]
@@ -237,10 +237,10 @@ class Compute_measures_rand(object):
             size=0
             if nx.has_path(self.tree, node, nodeT):
                 pathx=nx.all_simple_paths(self.tree, node, nodeT, cutoff=None)              # Projection chain from ROOT to each Terminal node is encoded as list of nodes in the chain
-                for item in pathx:  
+                for item in pathx:
                     size=len(item)-1
             size_chains.append(size)
-        proj_degree=max(size_chains)                                    # Projection degree = No. of nodes in the longest projection chain from ROOT to a terminal node 
+        proj_degree=max(size_chains)                                    # Projection degree = No. of nodes in the longest projection chain from ROOT to a terminal node
         return proj_degree
 
     def projD_hist(self):
@@ -251,9 +251,9 @@ class Compute_measures_rand(object):
                 projd_histogram[projD]=projd_histogram[projD]+1
             else:
                 projd_histogram[projD]=1
-        return projd_histogram 
+        return projd_histogram
 
-    def arity(self):                                                    # Computes arity of the tree using out-degree of nodes 
+    def arity(self):                                                    # Computes arity of the tree using out-degree of nodes
         tree_arity=self.tree.out_degree(list(self.tree.nodes))          # returns a dictionary containing nodenames as keys and its out-degree (or arity) as its values
         max_arity=max([x[1] for x in tree_arity])                       # Maximum out-degree = maximum arity in the tree
         avg_arity=sum([x[1] for x in tree_arity])/len([x[1] for x in tree_arity])
@@ -263,8 +263,8 @@ class Compute_measures_rand(object):
                 histogram[arityx]=histogram[arityx]+1                   # Creates arity histogram i.e. frequency of each arity
             else:
                 histogram[arityx]=1
-        arity_histogram=histogram                                       
-        return [max_arity, avg_arity, tree_arity, arity_histogram]                    
+        arity_histogram=histogram
+        return [max_arity, avg_arity, tree_arity, arity_histogram]
 
     def endpoint_crossing(self,edge):
         edge_span=[]
@@ -278,14 +278,14 @@ class Compute_measures_rand(object):
                     edge_span.append(nodex)
 
         endpoint={}
-        
+
         for nodeI in edge_span:
             if not self.tree.nodes[nodeI]['head'] in edge_span:       # nodes intervening the edge span which are not dominated by the any node in the edge span
                 if not nodeI in nx.descendants(self.tree, edge[0]):
                     endpoint[self.tree.nodes[nodeI]['head']]=1        # creates a dictionary of all nodes having their outside their span. This dictionary has keys as 'heads' of the intervening nodes
-                            
+
         endpoint_cross=len(endpoint)                                   # If the intervening nodes belongs to more than head outside the edge span, then 1-endpoint crossing constraint is voilated
-        return endpoint_cross                                          # returns the no. of heads outside the edge span which dominates the intervening nodes   
+        return endpoint_cross                                          # returns the no. of heads outside the edge span which dominates the intervening nodes
 
     def compute_all(self):
         Arity=self.arity()
@@ -311,8 +311,8 @@ class Compute_measures_rand(object):
         if edge[0]>edge[1]:
             for nodex in nx.descendants(self.tree, self.root):
                 if edge[1]<nodex<edge[0]:
-                    edge_span.append(nodex)                          
-                    
+                    edge_span.append(nodex)
+
         else:
             for nodex in nx.descendants(self.tree, self.root):
                 if edge[0]<nodex<edge[1]:
@@ -340,20 +340,20 @@ class Compute_measures_rand(object):
                                 all_dep=all_dep
                         all_dep_deg=all_dep-dep_int
                     else:
-                        all_dep_deg=0            
+                        all_dep_deg=0
         else:
             all_dep_deg=100
 
         return all_dep_deg
-            
+
     def hdd(self,edge):
         HDD=0
         edge_span=[]
         if edge[0]>edge[1]:
             for nodex in nx.descendants(self.tree, self.root):
                 if edge[1]<nodex<edge[0]:
-                    edge_span.append(nodex)                          
-                    
+                    edge_span.append(nodex)
+
         else:
             for nodex in nx.descendants(self.tree, self.root):
                 if edge[0]<nodex<edge[1]:
@@ -380,6 +380,5 @@ class Compute_measures_rand(object):
                                 HDD=1
                         else:
                             HDD=2
-                                    
+
         return HDD
-                
